@@ -28,6 +28,8 @@
 //3] get list of publications based on books    ASSIGNMENT
 
 //POST REQUEST
-//1] add new books
-//2] add new authors 
-//3] add new publications
+//1] add new books                              DONE
+//2] add new authors                            DONE
+//3] add new publications                       DONE
+
+//PUT AND UPDATE REQUEST                        DONE

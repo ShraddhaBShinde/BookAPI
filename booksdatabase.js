@@ -52,7 +52,17 @@ const publications = [{
     {
         id: 2,
         name: "Manjul Publishing House",
-        bookname: "Book101",
+        bookname: "Book101"
+    },
+    {
+        id: 3,
+        name: "Poem Makers 2",
+        bookname: []
+    },
+    {
+        id: 4,
+        name: "Poen Makers 3",
+        bookname: []
     }
 
 ];

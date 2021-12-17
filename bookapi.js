@@ -2,7 +2,7 @@ const express = require("express");
 var bodyParser = require("body-parser");
 
 //Database import
-const database = require("./booksdatabase");
+const database = require("./booksdatabase").default;
 
 
 //Initialize express
@@ -220,5 +220,34 @@ booky.post("/p/publications/new", (req, res) => {
     const newPublication = req.body;
     database.publications.push(newPublication);
     return res.json({ updatedPublication: database.publications });
+});
+
+//UPDATE PUBLICATION AND BOOK
+/*
+Route          /p/publications/uodate/book/
+Description    UPDATE PUB AND BOOK
+Access         Public
+Parameters     isbn
+Methods        PUT
+*/
+booky.put("/p/publications/update/book/:isbn", (req, res) => {
+    //UPDATE PUB Db
+    database.publications.forEach((pub) => {
+        if (pub.id === req.body.pubId) {
+            return pub.bookname.push(req.params.isbn);
+        }
+    });
+    //UPDATE BOOK Db
+    database.books.forEach((book) => {
+        if (book.ISBN == req.params.isbn) {
+            book.publication = req.body.pubId;
+            return;
+        }
+    });
+    return res.json({
+        books: database.books,
+        publications: database.publications,
+        message: "Successfully updated!"
+    });
 });
 booky.listen(3000, () => console.log("Server is up and running!")); //making it listen to port 3000
