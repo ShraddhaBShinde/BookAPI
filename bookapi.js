@@ -2,7 +2,7 @@ const express = require("express");
 var bodyParser = require("body-parser");
 
 //Database import
-const database = require("./booksdatabase").default;
+const database = require("./booksdatabase");
 
 
 //Initialize express
@@ -224,7 +224,7 @@ booky.post("/p/publications/new", (req, res) => {
 
 //UPDATE PUBLICATION AND BOOK
 /*
-Route          /p/publications/uodate/book/
+Route          /p/publications/update/book/
 Description    UPDATE PUB AND BOOK
 Access         Public
 Parameters     isbn
@@ -250,4 +250,55 @@ booky.put("/p/publications/update/book/:isbn", (req, res) => {
         message: "Successfully updated!"
     });
 });
+
+//DELETE A BOOK
+/*
+Route          /delete/book
+Description    DELETE A BOOK
+Access         Public
+Parameters     isbn
+Methods        DELETE
+*/
+booky.delete("/book/delete/:isbn", (req, res) => {
+    const updateBookDatabase = database.books.filter((book) => book.ISBN !== req.params.isbn);
+    database.books = updateBookDatabase;
+    return res.json({ books: database.books });
+});
+
+//DELETE AN AUTHOR FROM A BOOK AND VICE VERSA
+/*
+Route          /delete/book/author
+Description    DELETE A BOOK
+Access         Public
+Parameters     isbn,authorsId
+Methods        DELETE
+*/
+booky.delete("/delete/book/author/:isbn/:authorId", (req, res) => {
+    //UPDATE BOOK Db
+    database.books.forEach((book) => {
+        if (book.ISBN === req.params.isbn) {
+            const newAuthorList = book.author.filter(
+                (eachAuthor) => eachAuthor !== parseInt(req.params.authorId)
+            );
+            book.author = newAuthorList;
+            return;
+        };
+    });
+    //UPDATE AUTHOR Db
+    database.authors.forEach((eachAuthor) => {
+        if (eachAuthor.id === req.params.authorId) {
+            const newBookList = eachAuthor.book.filter(
+                (book) => book !== req.params.isbn
+            );
+            eachAuthor.book = newBookList;
+            return;
+        };
+    });
+    return res.json({
+        book: database.books,
+        author: database.authors,
+        message: "Author and book were deleted!!!"
+    });
+});
+
 booky.listen(3000, () => console.log("Server is up and running!")); //making it listen to port 3000

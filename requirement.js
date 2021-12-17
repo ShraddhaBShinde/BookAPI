@@ -33,3 +33,4 @@
 //3] add new publications                       DONE
 
 //PUT AND UPDATE REQUEST                        DONE
+//DELETE REQUEST

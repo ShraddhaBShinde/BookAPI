@@ -3,7 +3,7 @@ const books = [{
         title: "Getting started with MERN",
         pubDate: "2021-5-12",
         numPages: 300,
-        author: [1, 2],
+        author: [1],
         publication: [1],
         category: ["sci", "tech", "programming"],
         language: "English"
@@ -19,12 +19,24 @@ const books = [{
         category: ["Self-help", "spiritual"],
         language: "Marathi"
 
+    },
+    {
+        ISBN: "Book102",
+        title: "400 Days",
+        pubDate: "2021-8-10",
+        numPages: 352,
+        author: [1],
+        publication: [1],
+        category: ["Thriller", "Suspense"],
+        language: "English"
+
     }
+
 ];
 
 const authors = [{
         id: 1,
-        name: ["Jack", "Rim"],
+        name: ["Jack"],
         book: "Book100"
     },
     {
@@ -36,6 +48,11 @@ const authors = [{
         id: 3,
         name: ["Rhonda Byrne"],
         book: "Book101"
+    },
+    {
+        id: 4,
+        name: ["Chetan-Bhagat"],
+        book: "Book102"
     }
 ];
 
@@ -61,10 +78,9 @@ const publications = [{
     },
     {
         id: 4,
-        name: "Poen Makers 3",
-        bookname: []
+        name: "Westland",
+        bookname: "Book102"
     }
-
 ];
 
 module.exports = { books, authors, publications };
