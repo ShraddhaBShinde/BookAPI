@@ -1,9 +1,14 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 var bodyParser = require("body-parser");
 
 //Database import
 const database = require("./booksdatabase");
+//Models import
+const BookModel = require("./database/book");
+const AuthorModel = require("./database/author");
+const PublicationModel = require("./database/publication");
 
 
 //Initialize express
@@ -13,7 +18,7 @@ booky.use(bodyParser.json());
 
 //ESTABLISH DATABASE CONNECTION
 mongoose.connect(
-    "mongodb+srv://ShraddhaBShinde:MongoDB@shapeai.clz3g.mongodb.net/Booky?retryWrites=true&w=majority"
+    process.env.MONGO_URL
 ).then(() => console.log("Connection Established!!!"));
 
 //GET ALL BOOKS
@@ -24,8 +29,9 @@ Access         Public
 Parameters     -
 Methods        GET
 */
-booky.get("/", (req, res) => {
-    return res.json({ books: database.books });
+booky.get("/", async(req, res) => {
+    const getAllBooks = await BookModel.find();
+    return res.json(getAllBooks);
     //key    //getting books
 });
 // GET A BOOK 
