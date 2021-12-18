@@ -32,7 +32,6 @@ Methods        GET
 booky.get("/", async(req, res) => {
     const getAllBooks = await BookModel.find();
     return res.json(getAllBooks);
-    //key    //getting books
 });
 // GET A BOOK 
 /*
@@ -42,14 +41,14 @@ Access         Public
 Parameters     isbn
 Methods        GET
 */
-booky.get("/:isbn", (req, res) => { //isbn is the parameter in route route
-    const getabook = database.books.filter((book) => book.ISBN === req.params.isbn);
-    if (getabook.length === 0) {
+booky.get("/:isbn", async(req, res) => { //isbn is the parameter in route route
+    const getabook = await BookModel.findOne({ ISBN: req.params.isbn })
+    if (!getabook) {
         return res.json({
             error: `No book found for ISBN of ${req.params.isbn}`
         });
     }
-    return res.json({ book: getabook });
+    return res.json(getabook);
 });
 
 //GET A BOOK IN A SPECIFIC CATEGORY
@@ -60,19 +59,14 @@ Access         Public
 Parameters     category
 Methods        GET
 */
-booky.get("/c/:category", (req, res) => { //category is the parameter in c route
-
-    const getabookbycat = database.books.filter((book) =>
-        book.category.includes(req.params.category)
-        /*includes returns boolean values and it checks that if that array includes 
-        the particular element*/
-    );
-    if (getabookbycat.length === 0) {
+booky.get("/c/:category", async(req, res) => { //category is the parameter in c route
+    const getabookbycat = await BookModel.findOne({ category: req.params.category })
+    if (!getabookbycat) {
         return res.json({
             error: `No book found for category of ${req.params.category}`
         });
     }
-    return res.json({ book: getabookbycat });
+    return res.json(getabookbycat);
 });
 
 //GET A BOOK BY LANGUAGE
@@ -83,14 +77,14 @@ Access         Public
 Parameters     language
 Methods        GET
 */
-booky.get("/l/:language", (req, res) => {
-    const getabookbylang = database.books.filter((book) => book.language === req.params.language);
-    if (getabookbylang.length === 0) {
+booky.get("/l/:language", async(req, res) => {
+    const getabookbylang = await BookModel.findOne({ language: req.params.language })
+    if (!getabookbylang) {
         return res.json({
             error: `No book found for language of ${req.params.language}`
         });
     }
-    return res.json({ book: getabookbylang });
+    return res.json(getabookbylang);
 });
 
 //GET ALL AUTHORS
@@ -101,8 +95,9 @@ Access         Public
 Parameters     -
 Methods        GET
 */
-booky.get("/a/author", (req, res) => {
-    return res.json({ author: database.authors });
+booky.get("/a/author", async(req, res) => {
+    const getAllAuthors = await AuthorModel.find()
+    return res.json(getAllAuthors);
 });
 
 //GET AN AUTHOR BASED ON A BOOK
@@ -113,15 +108,14 @@ Access         Public
 Parameters     book
 Methods        GET
 */
-booky.get("/a/author/:book", (req, res) => {
-    const getauthorbybook = database.authors.filter((author) =>
-        author.book.includes(req.params.book));
-    if (getauthorbybook.length === 0) {
+booky.get("/a/author/:book", async(req, res) => {
+    const getauthorbybook = await AuthorModel.findOne({ books: req.params.book })
+    if (!getauthorbybook) {
         return res.json({
             error: `No author found for book of ${req.params.book}`
         });
     }
-    return res.json({ author: getauthorbybook });
+    return res.json(getauthorbybook);
 });
 
 //GET LIST OF AUTHORS BASED ON BOOKS
@@ -132,15 +126,14 @@ Access         Public
 Parameters     book
 Methods        GET
 */
-booky.get("/a/author/:book", (req, res) => {
-    const getallauthorsbybook = database.authors.filter((author) =>
-        author.book.includes(req.params.book));
-    if (getallauthorsbybook.length === 0) {
+booky.get("/a/author/b/:books", async(req, res) => {
+    const getallauthorsbybook = await AuthorModel.find({ books: req.params.books })
+    if (!getallauthorsbybook) {
         return res.json({
-            error: `No author found for book of ${req.params.book}`
+            error: `No authors found for book of ${req.params.books}`
         });
     }
-    return res.json({ author: getallauthorsbybook });
+    return res.json(getallauthorsbybook);
 });
 
 //GET ALL PUBLICATIONS
@@ -151,8 +144,9 @@ Access         Public
 Parameters     -
 Methods        GET
 */
-booky.get("/p/publications", (req, res) => {
-    return res.json({ publication: database.publications });
+booky.get("/p/publications", async(req, res) => {
+    const getAllPubs = await PublicationModel.find()
+    return res.json(getAllPubs);
 });
 
 //GET SPECIFIC PUBLICATION
@@ -163,14 +157,14 @@ Access         Public
 Parameters     id
 Methods        GET
 */
-booky.get("/p/publications/:id", (req, res) => {
-    const getapub = database.publications.filter((publication) => publication.id === req.params.id);
-    if (getapub.length === 0) {
+booky.get("/p/publications/:id", async(req, res) => {
+    const getapub = await PublicationModel.findOne({ id: req.params.id })
+    if (!getapub) {
         return res.json({
             error: `No publication found for id of ${req.params.id}`
         });
     }
-    return res.json({ publication: getapub });
+    return res.json(getapub);
 });
 
 //GET LIST OF PUBLICATIONS BASED ON BOOKS
@@ -181,15 +175,14 @@ Access         Public
 Parameters     book
 Methods        GET
 */
-booky.get("/p/publications/b/:bookname", (req, res) => {
-    const getallpubsbybook = database.publications.filter((book) =>
-        publications.bookname.includes(req.params.bookname));
-    if (getallpubsbybook.length === 0) {
+booky.get("/p/publications/b/:books", async(req, res) => {
+    const getallpubsbybook = await PublicationModel.find({ books: req.params.books })
+    if (!getallpubsbybook) {
         return res.json({
-            error: `No publications found for book of ${req.params.bookname}`
+            error: `No publications found for book of ${req.params.books}`
         });
     }
-    return res.json({ publications: getallpubsbybook });
+    return res.json(getallpubsbybook);
 });
 
 //ADD NEW BOOKS
