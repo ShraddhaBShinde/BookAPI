@@ -192,11 +192,16 @@ Description    ADD NEW BOOKS
 Access         Public
 Parameters     NONE
 Methods        POST
-*/
-booky.post("/book/new", (req, res) => {
+(without mongoose) booky.post("/book/new", (req, res) => {
     const newBook = req.body;
     database.books.push(newBook);
     return res.json({ updatedBook: database.books });
+});
+*/
+booky.post("/book/new", (req, res) => {
+    const { newBook } = req.body;
+    const addNewBook = BookModel.create(newBook)
+    return res.json({ books: addNewBook, message: "Book was added" });
 });
 
 //ADD NEW AUTHORS
@@ -208,9 +213,9 @@ Parameters     NONE
 Methods        POST
 */
 booky.post("/a/author/new", (req, res) => {
-    const newAuthor = req.body;
-    database.authors.push(newAuthor);
-    return res.json({ updatedAuthor: database.authors });
+    const { newAuthor } = req.body;
+    const addNewAuthor = AuthorModel.create(newAuthor)
+    return res.json({ authors: addNewAuthor, message: "Author was added" });
 });
 
 //ADD NEW PUBLICATIONS
@@ -222,9 +227,68 @@ Parameters     NONE
 Methods        POST
 */
 booky.post("/p/publications/new", (req, res) => {
-    const newPublication = req.body;
-    database.publications.push(newPublication);
-    return res.json({ updatedPublication: database.publications });
+    const { newPublication } = req.body;
+    const addNewPublication = PublicationModel.create(newPublication)
+    return res.json({ publications: addNewPublication, message: "Publication was added" });
+});
+
+//UPDATE A BOOK
+/*
+Route          /book/update
+Description    UPDATE A BOOK
+Access         Public
+Parameters     isbn
+Methods        PUT
+*/
+booky.put("/book/update/:isbn", async(req, res) => {
+    const updatedBook = await BookModel.findOneAndUpdate({
+        ISBN: req.params.isbn
+    }, {
+        title: req.body.title
+    }, {
+        new: true
+    });
+    return res.json({ books: database.books });
+});
+//UPDATE A BOOK->AUTHOR (did not work)
+/*
+Route          /book/update
+Description    UPDATE A BOOK
+Access         Public
+Parameters     isbn
+Methods        PUT
+*/
+booky.put("/book/update/:isbn", async(req, res) => {
+    const updatedBook = await BookModel.findOneAndUpdate({
+        ISBN: req.params.isbn
+    }, {
+        $push: {
+            author: req.body.oneauthor
+        }
+    }, {
+        new: true
+    });
+    return res.json({ books: database.books });
+});
+//UPDATE A BOOK->CATEGORY (did not work)
+/*
+Route          /book/update
+Description    UPDATE A BOOK
+Access         Public
+Parameters     isbn
+Methods        PUT
+*/
+booky.put("/book/update/:isbn", async(req, res) => {
+    const updatedBook = await BookModel.findOneAndUpdate({
+        ISBN: req.params.isbn
+    }, {
+        $push: {
+            category: parseInt(req.body.category)
+        }
+    }, {
+        new: true
+    });
+    return res.json({ books: database.books });
 });
 
 //UPDATE PUBLICATION AND BOOK
@@ -235,20 +299,28 @@ Access         Public
 Parameters     isbn
 Methods        PUT
 */
-booky.put("/p/publications/update/book/:isbn", (req, res) => {
+booky.put("/p/publications/update/book/:isbn", async(req, res) => {
     //UPDATE PUB Db
-    database.publications.forEach((pub) => {
-        if (pub.id === req.body.pubId) {
-            return pub.bookname.push(req.params.isbn);
-        }
-    });
+    /* (without mongoose) database.publications.forEach((pub) => {
+         if (pub.id === req.body.pubId) {
+             return pub.bookname.push(req.params.isbn);
+         }
+     })*/
+
     //UPDATE BOOK Db
-    database.books.forEach((book) => {
+    /* (without mongoose) database.books.forEach((book) => {
         if (book.ISBN == req.params.isbn) {
             book.publication = req.body.pubId;
             return;
         }
-    });
+    });*/
+    const updatedBook = await BookModel.findOneAndUpdate({
+        ISBN: req.params.isbn
+    }, {
+        publication: req.body.pubId
+    }, {
+        new: true
+    })
     return res.json({
         books: database.books,
         publications: database.publications,
@@ -264,10 +336,11 @@ Access         Public
 Parameters     isbn
 Methods        DELETE
 */
-booky.delete("/book/delete/:isbn", (req, res) => {
-    const updateBookDatabase = database.books.filter((book) => book.ISBN !== req.params.isbn);
-    database.books = updateBookDatabase;
-    return res.json({ books: database.books });
+booky.delete("/book/delete/:isbn", async(req, res) => {
+    const updateBookDatabase = await BookModel.findOneAndDelete({
+        ISBN: req.params.isbn
+    });
+    return res.json({ books: updateBookDatabase });
 });
 
 //DELETE AN AUTHOR FROM A BOOK AND VICE VERSA
@@ -278,26 +351,26 @@ Access         Public
 Parameters     isbn,authorsId
 Methods        DELETE
 */
-booky.delete("/delete/book/author/:isbn/:authorId", (req, res) => {
+booky.delete("/delete/book/author/:isbn/:authorId", async(req, res) => {
     //UPDATE BOOK Db
-    database.books.forEach((book) => {
-        if (book.ISBN === req.params.isbn) {
-            const newAuthorList = book.author.filter(
-                (eachAuthor) => eachAuthor !== parseInt(req.params.authorId)
-            );
-            book.author = newAuthorList;
-            return;
-        };
+    const updatedBook = await BookModel.findOneAndUpdate({
+        ISBN: req.params.isbn
+    }, {
+        $pull: {
+            author: req.params.authorId
+        }
+    }, {
+        new: true
     });
-    //UPDATE AUTHOR Db
-    database.authors.forEach((eachAuthor) => {
-        if (eachAuthor.id === req.params.authorId) {
-            const newBookList = eachAuthor.book.filter(
-                (book) => book !== req.params.isbn
-            );
-            eachAuthor.book = newBookList;
-            return;
-        };
+    //UPDATE AUTHOR Db (did not work)
+    const updatedAuthor = await AuthorModel.findOneAndUpdate({
+        id: req.params.authorId
+    }, {
+        $pull: {
+            books: req.params.isbn
+        }
+    }, {
+        new: true
     });
     return res.json({
         book: database.books,
